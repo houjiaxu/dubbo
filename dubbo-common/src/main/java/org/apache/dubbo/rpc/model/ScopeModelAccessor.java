@@ -17,6 +17,7 @@
 package org.apache.dubbo.rpc.model;
 
 /**
+ * 作用域模型的访问器, 可以用于接口默认方法来 获取 作用域模型
  * An accessor for scope model, it can be use in interface default methods to get scope model.
  */
 public interface ScopeModelAccessor {

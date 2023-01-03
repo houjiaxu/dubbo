@@ -17,6 +17,7 @@
 package org.apache.dubbo.common.extension;
 
 /**
+ * 和javaSpi的目录一样
  * Services {@link LoadingStrategy}
  *
  * @since 2.7.7

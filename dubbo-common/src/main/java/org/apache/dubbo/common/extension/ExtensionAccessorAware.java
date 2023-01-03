@@ -17,6 +17,7 @@
 package org.apache.dubbo.common.extension;
 
 /**
+ * 扩展访问器Aware接口
  * SPI extension can implement this aware interface to obtain appropriate {@link ExtensionAccessor} instance.
  */
 public interface ExtensionAccessorAware {

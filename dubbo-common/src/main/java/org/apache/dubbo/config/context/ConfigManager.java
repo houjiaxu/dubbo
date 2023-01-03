@@ -45,6 +45,8 @@ import static java.util.Optional.ofNullable;
 import static org.apache.dubbo.config.AbstractConfig.getTagName;
 
 /**
+ * 无锁配置管理器（通过ConcurrentHashMap），用于快速读取操作。
+ * 带有配置类型的子配置映射的写入操作锁，用于安全检查和添加新配置。
  * A lock-free config manager (through ConcurrentHashMap), for fast read operation.
  * The Write operation lock with sub configs map of config type, for safely check and add new config.
  */

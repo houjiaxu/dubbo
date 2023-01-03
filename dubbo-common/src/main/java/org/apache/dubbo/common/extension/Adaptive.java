@@ -24,9 +24,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Provide helpful information for {@link ExtensionLoader} to inject dependency extension instance.
- *
+/**为ExtensionLoader注入依赖扩展实例提供帮助信息, 一般标记在接口方法上，并且被标记的方法参数必须要有dubbo的URL类型否则报错；
+ * @Adaptive(“type”) 表示根据方法参数URL对象中的type来寻找实现类；如果标记在实现类上表示它就是一个自适应实现类；
+ * 例如
+ *      ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension().
+ *      doExport(URL.valueOf("http://www.baidu.com?type=hessian"), null);
+ *      // 获取自适应类的实现，并调用其方法doExport,然后获取type的值hessian，作为实现类；
+ * 一般自适应类都是系统运行期生成
  * @see ExtensionLoader
  * @see URL
  */
@@ -34,7 +38,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Adaptive {
-    /**
+    /**决定注入哪一个目标扩展, 目标扩展的名称由传递的参数决定. 并且参数名称由该方法给出。
      * Decide which target extension to be injected. The name of the target extension is decided by the parameter passed
      * in the URL, and the parameter names are given by this method.
      * <p>

@@ -25,6 +25,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 该注解用于 对于使用给定标准自动激活某些扩展，
+ * 例如：<code>@Activate</code>当有多个实现的时候,可以用于加载特定的<code>Filter</code>扩展。
+ * 一般标记在实现类上 @Activate(value={“provider”},group={“v1”}); 表示根据url中存在key=provider，且指定的group也一样 则是一个激活的实现类;
+ * 例如
+ *      List<Protocol> activeProtocolImpls=extensionLoader.getActivateExtension(URL.valueOf("http://www.baidu.com?provider=hessian"),"provider","v1");
+ *  	1、获取存在@Activate注解的实现类，且满足注解的value在url的key中能对应，且group为v1的实现类
+ *      2、获取别名为hession的实现类
+ *
  * Activate. This annotation is useful for automatically activate certain extensions with the given criteria,
  * for examples: <code>@Activate</code> can be used to load certain <code>Filter</code> extension when there are
  * multiple implementations.

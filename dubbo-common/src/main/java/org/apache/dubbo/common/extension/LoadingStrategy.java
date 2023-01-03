@@ -18,6 +18,12 @@ package org.apache.dubbo.common.extension;
 
 import org.apache.dubbo.common.lang.Prioritized;
 
+/**
+ * SPI的加载策略,优先级从高到低: 如果有重复的接口实现&&只允许有一个实现,则优先级高的可以覆盖低的
+ * META-INF/dubbo/internal/  DubboInternalLoadingStrategy
+ * META-INF/dubbo/ DubboLoadingStrategy
+ * META-INF/services/  ServicesLoadingStrategy
+ */
 public interface LoadingStrategy extends Prioritized {
 
     String directory();

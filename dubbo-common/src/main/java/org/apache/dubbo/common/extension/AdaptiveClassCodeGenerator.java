@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
+/**自适应类代码生成器
  * Code generator for Adaptive class
  */
 public class AdaptiveClassCodeGenerator {
@@ -87,7 +87,7 @@ public class AdaptiveClassCodeGenerator {
         return Arrays.stream(type.getMethods()).anyMatch(m -> m.isAnnotationPresent(Adaptive.class));
     }
 
-    /**
+    /**生成代码并返回.
      * generate and return class code
      */
     public String generate() {

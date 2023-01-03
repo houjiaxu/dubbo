@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 import static org.apache.dubbo.common.constants.LoggerCodeConstants.CONFIG_FAILED_DESTROY_INVOKER;
 
-/**
+/**用于内部共享的bean工厂。
  * A bean factory for internal sharing.
  */
 public class ScopeBeanFactory {
@@ -47,9 +47,15 @@ public class ScopeBeanFactory {
     protected static final ErrorTypeAwareLogger LOGGER = LoggerFactory.getErrorTypeAwareLogger(ScopeBeanFactory.class);
 
     private final ScopeBeanFactory parent;
+    /**
+     * 扩展访问器
+     */
     private ExtensionAccessor extensionAccessor;
     private List<ExtensionPostProcessor> extensionPostProcessors;
     private Map<Class, AtomicInteger> beanNameIdCounterMap = new ConcurrentHashMap<>();
+    /**
+     * 注册过的bean信息
+     */
     private List<BeanInfo> registeredBeanInfos = new CopyOnWriteArrayList<>();
     private InstantiationStrategy instantiationStrategy;
     private AtomicBoolean destroyed = new AtomicBoolean();
@@ -61,6 +67,9 @@ public class ScopeBeanFactory {
         initInstantiationStrategy();
     }
 
+    /**
+     * 初始化 初始化策略
+     */
     private void initInstantiationStrategy() {
         for (ExtensionPostProcessor extensionPostProcessor : extensionPostProcessors) {
             if (extensionPostProcessor instanceof ScopeModelAccessor) {
@@ -102,13 +111,14 @@ public class ScopeBeanFactory {
 
     public void registerBean(String name, Object bean) {
         checkDestroyed();
-        // avoid duplicated register same bean
+        // 避免重复注册相同的bean;  avoid duplicated register same bean
         if (containsBean(name, bean)) {
             return;
         }
 
         Class<?> beanClass = bean.getClass();
         if (name == null) {
+            //beanclass#1,beanclass#2
             name = beanClass.getName() + "#" + getNextId(beanClass);
         }
         initializeBean(name, bean);
@@ -158,6 +168,11 @@ public class ScopeBeanFactory {
         return bean;
     }
 
+    /**
+     * 初始化bean
+     * 1. 处理ExtensionAccessorAware接口
+     * 2. 调用ExtensionPostProcessor#postProcessAfterInitialization方法
+     */
     private void initializeBean(String name, Object bean) {
         checkDestroyed();
         try {

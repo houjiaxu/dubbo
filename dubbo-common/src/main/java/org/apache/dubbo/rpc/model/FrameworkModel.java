@@ -35,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-/**
+/**DUBBO 框架的Model , 可以在多个应用内共享
  * Model of dubbo framework, it can be shared with multiple applications.
  */
 public class FrameworkModel extends ScopeModel {

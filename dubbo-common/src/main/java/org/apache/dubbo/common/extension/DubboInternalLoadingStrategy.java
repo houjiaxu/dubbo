@@ -17,6 +17,7 @@
 package org.apache.dubbo.common.extension;
 
 /**
+ * dubbo内部目录
  * Dubbo internal {@link LoadingStrategy}
  *
  * @since 2.7.7

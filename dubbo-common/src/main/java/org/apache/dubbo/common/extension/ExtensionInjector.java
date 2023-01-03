@@ -16,13 +16,13 @@
  */
 package org.apache.dubbo.common.extension;
 
-/**
+/**为SPI扩展提供资源的一个注入器
  * An injector to provide resources for SPI extension.
  */
 @SPI(scope = ExtensionScope.SELF)
 public interface ExtensionInjector extends ExtensionAccessorAware {
 
-    /**
+    /**获取指定type和name的实例
      * Get instance of specify type and name.
      *
      * @param type object type.

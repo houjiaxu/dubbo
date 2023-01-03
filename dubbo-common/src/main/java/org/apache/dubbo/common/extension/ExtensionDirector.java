@@ -26,10 +26,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ExtensionDirector is a scoped extension loader manager.
- *
  * <p></p>
  * <p>ExtensionDirector supports multiple levels, and the child can inherit the parent's extension instances. </p>
  * <p>The way to find and create an extension instance is similar to Java classloader.</p>
+ *
+ * ExtensionDirector是一个作用域内的扩展 加载器管理器。
+ * ExtensionDirector 支持多个级别, 子类可以继承其父扩展实例
+ * 查找和创建扩展实例的方式 类似于Java类加载器
  */
 public class ExtensionDirector implements ExtensionAccessor {
 

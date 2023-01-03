@@ -35,7 +35,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import java.util.SortedMap;
 
 
-/**
+/**注册一些基础的bean,
+ * 这个后置处理器必须实现BeanDefinitionRegistryPostProcessor接口,以便能够加载和执行注册的BeanFactoryPostProcessor bean。
  * Register some infrastructure beans if not exists.
  * This post-processor MUST impl BeanDefinitionRegistryPostProcessor,
  * in order to enable the registered BeanFactoryPostProcessor bean to be loaded and executed.
@@ -62,7 +63,7 @@ public class DubboInfraBeanRegisterPostProcessor implements BeanDefinitionRegist
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
         // In Spring 3.2.x, registry may be null because do not call postProcessBeanDefinitionRegistry method before postProcessBeanFactory
-        if (registry != null) {
+        if (registry != null) {//处理spring 3.2.x的bug
             // register ReferenceAnnotationBeanPostProcessor early before PropertySourcesPlaceholderConfigurer/PropertyPlaceholderConfigurer
             // for processing early init ReferenceBean
             ReferenceAnnotationBeanPostProcessor referenceAnnotationBeanPostProcessor = beanFactory.getBean(
@@ -72,22 +73,22 @@ public class DubboInfraBeanRegisterPostProcessor implements BeanDefinitionRegist
             // register PropertySourcesPlaceholderConfigurer bean if not exits
             DubboBeanUtils.registerPlaceholderConfigurerBeanIfNotExists(beanFactory, registry);
         }
-
+        //从spring中获取ApplicationModel,ModuleModel
         ApplicationModel applicationModel = DubboBeanUtils.getApplicationModel(beanFactory);
         ModuleModel moduleModel = DubboBeanUtils.getModuleModel(beanFactory);
 
-        // Initialize SpringExtensionInjector
+        // Initialize SpringExtensionInjector 初始化SpringExtensionInjector, 设置applicationContext
         SpringExtensionInjector.get(applicationModel).init(applicationContext);
         SpringExtensionInjector.get(moduleModel).init(applicationContext);
         DubboBeanUtils.getInitializationContext(beanFactory).setApplicationContext(applicationContext);
 
-        // Initialize dubbo Environment before ConfigManager
+        // 初始化dubbo环境, 从环境配置中获取dubbo配置信息. Initialize dubbo Environment before ConfigManager
         // Extract dubbo props from Spring env and put them to app config
         ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
         SortedMap<String, String> dubboProperties = EnvironmentUtils.filterDubboProperties(environment);
         applicationModel.getModelEnvironment().setAppConfigMap(dubboProperties);
 
-        // register ConfigManager singleton
+        // 注册dubboConfigManager定义 register ConfigManager singleton
         beanFactory.registerSingleton(ConfigManager.BEAN_NAME, applicationModel.getApplicationConfigManager());
 
         // fix https://github.com/apache/dubbo/issues/10278

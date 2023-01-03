@@ -25,7 +25,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Arrays;
 
-/**
+/**spring扩展注入器, 从spring上下文获取实例
  * SpringExtensionInjector
  */
 public class SpringExtensionInjector implements ExtensionInjector {
@@ -48,6 +48,9 @@ public class SpringExtensionInjector implements ExtensionInjector {
         this.context = context;
     }
 
+    /**
+     * 从spring上下文获取实例
+     */
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getInstance(Class<T> type, String name) {

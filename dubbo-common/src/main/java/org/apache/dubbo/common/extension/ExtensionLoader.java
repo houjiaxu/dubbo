@@ -84,6 +84,8 @@ import static org.apache.dubbo.common.constants.LoggerCodeConstants.COMMON_ERROR
 import static org.apache.dubbo.common.constants.LoggerCodeConstants.CONFIG_FAILED_LOAD_ENV_VARIABLE;
 
 /**
+ * ApplicationModel,｛@code DubboBootstrap｝和这个类是目前设计为单例或静态（本身完全静态或使用一些静态字段）。
+ * 因此，从它们返回的实例属于进程或类加载器范围。如果您想支持在一个进程中有多个dubbo服务器，您可能需要重构下面这三个类。
  * {@link org.apache.dubbo.rpc.model.ApplicationModel}, {@code DubboBootstrap} and this class are
  * at present designed to be singleton or static (by itself totally static or uses some static fields).
  * So the instances returned from them are of process or classloader scope. If you want to support

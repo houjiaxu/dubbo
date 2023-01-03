@@ -37,10 +37,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.dubbo.common.constants.LoggerCodeConstants.CONFIG_UNABLE_DESTROY_MODEL;
 
+/**
+ * 作用域模型
+ * 包含了 ExtensionScope, ExtensionDirector
+ */
 public abstract class ScopeModel implements ExtensionAccessor {
     protected static final ErrorTypeAwareLogger LOGGER = LoggerFactory.getErrorTypeAwareLogger(ScopeModel.class);
 
     /**
+     * internalId用来表示model树的层次结构,比如
+     * 1  FrameworkModel (index=1)
+     * 1.2  FrameworkModel (index=1) -> ApplicationModel (index=2)
+     * 1.2.0  FrameworkModel (index=1) -> ApplicationModel (index=2) -> ModuleModel (index=0, internal module)
+     * 1.2.1  FrameworkModel (index=1) -> ApplicationModel (index=2) -> ModuleModel (index=1, first user module)
+     *
      * The internal id is used to represent the hierarchy of the model tree, such as:
      * <ol>
      *     <li>1</li>

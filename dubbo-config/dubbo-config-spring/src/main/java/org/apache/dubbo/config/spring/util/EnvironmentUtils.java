@@ -114,6 +114,7 @@ public abstract class EnvironmentUtils {
     }
 
     /**
+     * 从environment获取dubbo相关配置
      * Filters Dubbo Properties from {@link ConfigurableEnvironment}
      *
      * @param environment {@link ConfigurableEnvironment}
