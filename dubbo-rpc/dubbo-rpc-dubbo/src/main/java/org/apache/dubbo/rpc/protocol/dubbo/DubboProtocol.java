@@ -326,7 +326,7 @@ public class DubboProtocol extends AbstractProtocol {
 
             }
         }
-
+        //开启服务
         openServer(url);
         optimizeSerialization(url);
 
@@ -335,17 +335,21 @@ public class DubboProtocol extends AbstractProtocol {
 
     private void openServer(URL url) {
         checkDestroyed();
-        // find server.
+        //key就是一个ip加端口的标识
         String key = url.getAddress();
         // client can export a service which only for server to invoke
         boolean isServer = url.getParameter(IS_SERVER_KEY, true);
 
         if (isServer) {
             ProtocolServer server = serverMap.get(key);
+            //已经创建了服务直接返回，只创建一次
             if (server == null) {
+                //同步锁
                 synchronized (this) {
                     server = serverMap.get(key);
+                    //双重检测
                     if (server == null) {
+                        //关注createServer 方法
                         serverMap.put(key, createServer(url));
                         return;
                     }
@@ -364,6 +368,7 @@ public class DubboProtocol extends AbstractProtocol {
     }
 
     private ProtocolServer createServer(URL url) {
+        //添加三个参数，
         url = URLBuilder.from(url)
             // send readonly event when server closes, it's enabled by default
             .addParameterIfAbsent(CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString())
@@ -371,7 +376,7 @@ public class DubboProtocol extends AbstractProtocol {
             .addParameterIfAbsent(HEARTBEAT_KEY, String.valueOf(DEFAULT_HEARTBEAT))
             .addParameter(CODEC_KEY, DubboCodec.NAME)
             .build();
-
+        //传输协议，没配置，默认netty
         String transporter = url.getParameter(SERVER_KEY, DEFAULT_REMOTING_SERVER);
         if (StringUtils.isNotEmpty(transporter) && !url.getOrDefaultFrameworkModel().getExtensionLoader(Transporter.class).hasExtension(transporter)) {
             throw new RpcException("Unsupported server type: " + transporter + ", url: " + url);
@@ -379,6 +384,7 @@ public class DubboProtocol extends AbstractProtocol {
 
         ExchangeServer server;
         try {
+            //绑定nettyserver
             server = Exchangers.bind(url, requestHandler);
         } catch (RemotingException e) {
             throw new RpcException("Fail to start server(url: " + url + ") " + e.getMessage(), e);

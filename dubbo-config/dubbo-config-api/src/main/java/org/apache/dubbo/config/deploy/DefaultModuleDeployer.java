@@ -148,13 +148,13 @@ public class DefaultModuleDeployer extends AbstractDeployer<ModuleModel> impleme
             if (isStarting() || isStarted()) {
                 return startFuture;
             }
-
+            //设置状态开始 初始化startFuture ，发布状态改变通知
             onModuleStarting();
 
-
+            //设置初始化状态，加载providers，consumers的配置，并刷新
             initialize();
 
-            // export services
+            //导出服务在这里
             exportServices();
 
             // prepare application instance
@@ -163,7 +163,7 @@ public class DefaultModuleDeployer extends AbstractDeployer<ModuleModel> impleme
                 applicationDeployer.prepareInternalModule();
             }
 
-            // refer services
+            // 服务引入在这里
             referServices();
 
             // if no async export/refer services, just set started

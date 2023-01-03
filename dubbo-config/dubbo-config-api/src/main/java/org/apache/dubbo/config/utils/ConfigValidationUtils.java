@@ -231,6 +231,7 @@ public class ConfigValidationUtils {
                 }
             }
         }
+        //这里主要和我们一个配置有关系* dubbo.application.registerMode 即注册方式，即实例注册，还是接口注册，默认是接口级别注册，主要是兼容2.x版本。
         return genCompatibleRegistries(interfaceConfig.getScopeModel(), registryList, provider);
     }
 

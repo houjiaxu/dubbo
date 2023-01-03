@@ -35,7 +35,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 
 /**
  * ServiceFactoryBean
- *
+ * 所有的dubbo服务类都会被解析成servicebean定义;
  * @export
  */
 public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean, DisposableBean,

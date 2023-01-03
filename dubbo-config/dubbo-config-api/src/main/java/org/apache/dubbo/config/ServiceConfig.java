@@ -101,6 +101,9 @@ import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
 import static org.apache.dubbo.rpc.cluster.Constants.EXPORT_KEY;
 import static org.apache.dubbo.rpc.support.ProtocolUtils.isGeneric;
 
+/**
+ * 导出服务
+ */
 public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     private static final long serialVersionUID = 7868244018230856253L;
@@ -209,9 +212,12 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             ExtensionLoader<ServiceListener> extensionLoader = this.getExtensionLoader(ServiceListener.class);
             this.serviceListeners.addAll(extensionLoader.getSupportedExtensionInstances());
         }
+        //初始化版本号，接口名，group
         initServiceMetadata(provider);
         serviceMetadata.setServiceType(getInterfaceClass());
+        //目标接口实现
         serviceMetadata.setTarget(getRef());
+        //build key 格式为 group/服务接口:版本号
         serviceMetadata.generateServiceKey();
     }
 
@@ -221,7 +227,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             return;
         }
 
-        // ensure start module, compatible with old api usage
+        // 再次调用发布器的start方法，因为某些情况下我们可以不需要依赖调用spring事件，比如直接通过DubboBootstrap启动
         getScopeModel().getDeployer().start();
 
         synchronized (this) {
@@ -230,14 +236,18 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             }
 
             if (!this.isRefreshed()) {
+                //刷新配置
                 this.refresh();
             }
             if (this.shouldExport()) {
+                //这里初始化元数据信息，接口名，版本等信息
                 this.init();
 
                 if (shouldDelay()) {
+                    //配置了延迟导出
                     doDelayExport();
                 } else {
+                    //直接导出
                     doExport();
                 }
             }
@@ -366,6 +376,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         if (StringUtils.isEmpty(path)) {
             path = interfaceName;
         }
+        //dubbo 中，url可以认为是我们上下文活着是注册中心，元数据中心等传递数据的关键
         doExportUrls();
         exported();
     }
@@ -393,8 +404,14 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         providerModel.setDestroyRunner(getDestroyRunner());
         repository.registerProvider(providerModel);
 
-        List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
+        //前面拿到 了ModuleServiceRepository 并且构建了provider模型，保存到ModuleServiceRepository存储起来
 
+        //加载注册中心url，支持多注册中心，遍历构建url，可以断点看看是什么样的，dubbo提供demo如下
+        //service-discovery-registry://127.0.0.1:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=registryConfig&application=dubbo-demo-annotation-provider&dubbo=2.0.2&executor-management-mode=default&file.cache=true&metadata-type=remote&pid=75541&register-mode=instance&registry=zookeeper&timestamp=1671260025472
+        //这里根据配置是接口还是应用级别注册，会拿到不同的协议，registry://接口级别注册地址，
+        // service-discovery-registry 应用级别注册地址
+        List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
+        //支持多协议，比如可以同时配置dubbo、tri协议
         for (ProtocolConfig protocolConfig : protocols) {
             String pathKey = URL.buildKey(getContextPath(protocolConfig)
                 .map(p -> p + "/" + path)
@@ -404,6 +421,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 // In case user specified path, register service one more time to map it to path.
                 repository.registerService(pathKey, interfaceClass);
             }
+            //遍历协议导出配置到注册中心
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
 
@@ -411,15 +429,16 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     }
 
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
+        //这里主要是构建一些属性配置，比较简单，比如side，token等
         Map<String, String> map = buildAttributes(protocolConfig);
 
         // remove null key and null value
         map.keySet().removeIf(key -> StringUtils.isEmpty(key) || StringUtils.isEmpty(map.get(key)));
-        // init serviceMetadata attachments
+        // init serviceMetadata attachments //属性丢到元数据对象
         serviceMetadata.getAttachments().putAll(map);
-
+        //根据属性和协议构建url，即我们常见的 dubbo://127.0.0.:20880/org.apache.dubbo.demo.DemoService?XXXX后面参数省略
         URL url = buildUrl(protocolConfig, map);
-
+        //导出url
         exportUrl(url, registryURLs);
     }
 
@@ -593,18 +612,20 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         if (!SCOPE_NONE.equalsIgnoreCase(scope)) {
 
             // export to local if the config is not remote (export to remote only when config is remote)
+            // 未配置scope参数未远程，则开启本地导出
             if (!SCOPE_REMOTE.equalsIgnoreCase(scope)) {
                 exportLocal(url);
             }
 
             // export to remote if the config is not local (export to local only when config is local)
+            // 未配置scope参数为本地，则开启远程导出
             if (!SCOPE_LOCAL.equalsIgnoreCase(scope)) {
                 // export to extra protocol is used in remote export
                 String extProtocol = url.getParameter("ext.protocol", "");
                 List<String> protocols = new ArrayList<>();
 
                 if (StringUtils.isNotBlank(extProtocol)) {
-                    // export original url
+                    // 添加IS_PU_SERVER_KEY参数，为true
                     url = URLBuilder.from(url).
                         addParameter(IS_PU_SERVER_KEY, Boolean.TRUE.toString()).
                         removeParameter("ext.protocol").
@@ -688,10 +709,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrl(URL url, boolean withMetaData) {
+        //这里第二章节有说到proxyFactory 怎么来的，以及protocolSPI怎么来的，
+        //默认的类型javassist 对应JavassistProxyFactory代理工厂
         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, url);
         if (withMetaData) {
             invoker = new DelegateProviderMetaDataInvoker(invoker, this);
         }
+        //执行Adaptive的export方法
         Exporter<?> exporter = protocolSPI.export(invoker);
         exporters.add(exporter);
     }

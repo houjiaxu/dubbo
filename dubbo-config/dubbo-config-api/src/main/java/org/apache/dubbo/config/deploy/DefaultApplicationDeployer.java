@@ -238,6 +238,7 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
         // load config centers
         configManager.loadConfigsOfTypeFromProps(ConfigCenterConfig.class);
 
+        //逻辑是判断是否配置了配置中心，有的话直接用，没有就用注册中心构造出一个配置中心，也就是端口，协议，地址等的一些赋值，可以看registryAsConfigCenter这个方法 。
         useRegistryAsConfigCenterIfNecessary();
 
         // check Config Center

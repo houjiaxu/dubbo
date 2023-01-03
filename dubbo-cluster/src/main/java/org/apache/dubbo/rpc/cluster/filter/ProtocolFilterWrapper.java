@@ -57,7 +57,10 @@ public class ProtocolFilterWrapper implements Protocol {
         if (UrlUtils.isRegistry(invoker.getUrl())) {
             return protocol.export(invoker);
         }
+        //通过扩展机制构建filter链，通过spi可以看到实现类为DefaultFilterChainBuilder，
         FilterChainBuilder builder = getFilterChainBuilder(invoker.getUrl());
+        // 会对filter进行排序，就是丢到TreeMap 里面实现排序，根据排序顺序，构建责任链
+        // 具体可以看buildInvokerChain的代码，
         return protocol.export(builder.buildInvokerChain(invoker, SERVICE_FILTER_KEY, CommonConstants.PROVIDER));
     }
 

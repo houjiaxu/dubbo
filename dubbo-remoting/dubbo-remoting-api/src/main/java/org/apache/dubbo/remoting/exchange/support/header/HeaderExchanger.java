@@ -45,6 +45,7 @@ public class HeaderExchanger implements Exchanger {
     @Override
     public ExchangeServer bind(URL url, ExchangeHandler handler) throws RemotingException {
         ExchangeServer server;
+        // 翻看上面的exportUrl部分注释，有添加这个参数的地方，
         boolean isPuServerKey = url.getParameter(IS_PU_SERVER_KEY, false);
         if(isPuServerKey) {
             server = new HeaderExchangeServer(PortUnificationExchanger.bind(url, new DecodeHandler(new HeaderExchangeHandler(handler))));
